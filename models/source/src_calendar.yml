@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: source_calendar
+    project: dbt-rmaffioli
+    dataset: source_calendar
+    loader: manual_csv
+
+    tables:
+      - name: calendar

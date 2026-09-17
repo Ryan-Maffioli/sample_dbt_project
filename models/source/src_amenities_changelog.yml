@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: source_amenities_changelog
+    project: dbt-rmaffioli
+    dataset: source_amenities_changelog
+    loader: manual_csv
+
+    tables:
+      - name: amenities_changelog

@@ -1,0 +1,42 @@
+name: 'dbt_rmaffioli'
+version: '1.0.0'
+config-version: 2
+
+profile: 'dbt_rmaffioli'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  dbt_rmaffioli:
+    +persist_docs:
+      relation: true
+      columns: true
+    # Staging Layer: Lightweight views for initial cleanup & casting
+    staging:
+      +materialized: view
+      +schema: staging
+
+    # Intermediate Layer: Complex transforms, time-spans, and array logic
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+
+    # Marts Layer: Core facts/dims and final business queries
+    marts:
+      core:
+        +materialized: table
+        +schema: core
+        
+      reporting:
+        +materialized: view
+        +schema: reporting

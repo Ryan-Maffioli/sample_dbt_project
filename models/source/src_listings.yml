@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: source_listings
+    project: dbt-rmaffioli
+    dataset: source_listings
+    loader: manual_csv
+    
+    tables:
+      - name: listings

@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: rpt_picky_renter_longest_stay
+    description: "Calculates maximum allowable continuous stay length for listings matching Lockbox + First Aid Kit requirements."
+    columns:
+      - name: listing_id
+        description: "Primary key for listing analysis."
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_listings')
+              field: listing_id
+      - name: longest_possible_stay
+        description: "Longest unbroken sequence of available days capped by owner maximum_nights policy."
+        tests:
+          - not_null

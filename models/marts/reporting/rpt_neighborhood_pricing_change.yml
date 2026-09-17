@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: rpt_neighborhood_pricing_change
+    description: "Neighborhood-level pricing analysis comparing July 12, 2021 against July 11, 2022."
+    columns:
+      - name: neighborhood
+        description: "Primary neighborhood grouping."
+        tests:
+          - unique
+          - not_null
+      - name: total_listings
+        description: "Count of active listings present in neighborhood on both comparison dates."
+      - name: avg_price_2021
+        description: "Average price on July 12, 2021."
+      - name: avg_price_2022
+        description: "Average price on July 11, 2022."
+      - name: avg_price_increase
+        description: "Average price difference across listings from 2021 to 2022."

@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: fct_daily_listing_performance
+    description: "Primary daily fact table at date/listing grain containing metrics, availability, and point-in-time amenity boolean flags."
+    columns:
+      - name: calendar_id
+        description: "Primary key for daily record snapshot."
+        tests:
+          - unique
+          - not_null
+      - name: date
+        description: "Calendar snapshot date."
+        tests:
+          - not_null
+      - name: listing_id
+        description: "Foreign key linking to dim_listings."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_listings')
+              field: listing_id
+      - name: neighborhood
+        description: "Listing neighborhood location."
+      - name: reservation_id
+        description: "Identifier for reservation if booked."
+      - name: is_available
+        description: "Boolean indicating if property is open for booking on date."
+        tests:
+          - not_null
+      - name: price
+        description: "Daily price charged for property."
+        tests:
+          - not_null
+      - name: minimum_nights
+        description: "Minimum stay constraint enforced on date."
+      - name: maximum_nights
+        description: "Maximum stay constraint enforced on date."
+      - name: amenities
+        description: "ARRAY<STRING> of active amenities on date."
+      - name: has_ac
+        description: "Boolean flag derived from array indicating presence of Air Conditioning."
+        tests:
+          - not_null
+      - name: has_lockbox
+        description: "Boolean flag derived from array indicating presence of Lockbox."
+        tests:
+          - not_null
+      - name: has_first_aid_kit
+        description: "Boolean flag derived from array indicating presence of First Aid Kit."
+        tests:
+          - not_null

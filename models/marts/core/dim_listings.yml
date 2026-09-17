@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: dim_listings
+    description: "Core dimensional entity table for rental properties, host metadata, and physical capacity."
+    columns:
+      - name: listing_id
+        description: "Primary key for listing dimension."
+        tests:
+          - unique
+          - not_null
+      - name: listing_name
+        description: "Display title of property listing."
+      - name: host_id
+        description: "Unique identifier for host owner."
+      - name: host_name
+        description: "Name of host owner."
+      - name: host_since_ts
+        description: "Date host registered on platform."
+      - name: host_location
+        description: "Primary location of host."
+      - name: neighborhood
+        description: "Neighborhood region."
+        tests:
+          - not_null
+      - name: property_type
+        description: "Structural property categorization."
+      - name: room_type
+        description: "Privacy/room classification."
+      - name: capacity_accomodated
+        description: "Maximum guest limit."
+      - name: bedrooms
+        description: "Total bedrooms."
+      - name: beds
+        description: "Total beds."
+      - name: baseline_price
+        description: "Baseline rental price."
+      - name: review_count
+        description: "Lifetime guest review count."
+      - name: listing_ratings
+        description: "Historical average rating score."
