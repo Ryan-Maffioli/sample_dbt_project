@@ -1,4 +1,4 @@
-# Rental Property Analytics — dbt Project
+# Rental Property Analytics - dbt Project
 
 Transforms raw rental listing, calendar, and amenity-changelog source data
 into a daily listing-grain fact table and three reporting marts answering
@@ -8,7 +8,7 @@ revenue, pricing, and stay-length business questions.
 
 - dbt-core (see `dbt_project.yml` for the version this was built against)
 - BigQuery adapter (`dbt-bigquery`)
-- [dbt-utils](https://github.com/dbt-labs/dbt-utils) `1.1.1` — installed via `dbt deps` (see `packages.yml`)
+- [dbt-utils](https://github.com/dbt-labs/dbt-utils) `1.1.1` - installed via `dbt deps` (see `packages.yml`)
 
 ## Getting started
 
@@ -42,13 +42,13 @@ source → staging → intermediate → core marts → reporting
 
 | Layer | Models | Materialization |
 |---|---|---|
-| Staging | `stg_listings`, `stg_calendar`, `stg_amenities_changelog` | views (`stg_calendar` is a table — see below) |
+| Staging | `stg_listings`, `stg_calendar`, `stg_amenities_changelog` | views (`stg_calendar` is a table - see below) |
 | Intermediate | `int_amenities_changelog_spanned`, `int_daily_listing_amenities` | tables |
 | Core marts | `dim_listings`, `fct_daily_listing_performance` | `dim_listings` is a view; `fct_daily_listing_performance` is a clustered table |
 | Reporting | `rpt_amenity_revenue_monthly`, `rpt_neighborhood_pricing_change`, `rpt_picky_renter_longest_stay` | tables |
 
 `stg_calendar` is a table rather than a view because it deduplicates
-listing/date rows (see Assumptions) — that logic shouldn't be recomputed on
+listing/date rows (see Assumptions) - that logic shouldn't be recomputed on
 every downstream query. Every other staging model is a thin rename/cast
 pass and stays a view.
 
@@ -92,7 +92,7 @@ remaining nights in that availability island, capped by that night's
 `maximum_nights`, and only counted if it also meets `minimum_nights`.
 
 **Materialization: `fct_daily_listing_performance`.** Clustered on
-`(date, listing_id)`, no `partition_by` in this sandbox tier — BigQuery
+`(date, listing_id)`, no `partition_by` in this sandbox tier - BigQuery
 Sandbox's default 60-day partition expiration would silently purge this
 dataset's 2021 history. Full reasoning and the production-tier path
 (`partition_by` + `insert_overwrite` incremental) are documented in the
@@ -107,7 +107,7 @@ model's docs block (`fct_daily_listing_performance_architecture`).
   `accepted_values`/range checks where a null or out-of-range value would
   indicate a real upstream problem.
 - Foreign-key (`relationships`) tests between staging/fct and
-  `stg_listings`/`dim_listings` are set to `severity: warn`, not error —
+  `stg_listings`/`dim_listings` are set to `severity: warn`, not error -
   see Known Data Issues below for why.
 - One singular test, `assert_no_overlapping_amenity_changelog_windows`,
   guards against non-deterministic window spanning if the changelog ever
@@ -118,25 +118,25 @@ model's docs block (`fct_daily_listing_performance_architecture`).
 **`listing_id` 276450** appears in `stg_calendar` (365 rows, $76,520 in
 booked revenue) and `stg_amenities_changelog`, but has no matching row in
 `stg_listings`. Investigated and most likely a source-side load gap rather
-than fabricated/test data (full investigation trail — including a ruled-out
-synthetic-record hypothesis — in the `listing_id_276450` docs block on
+than fabricated/test data (full investigation trail - including a ruled-out
+synthetic-record hypothesis - in the `listing_id_276450` docs block on
 `fct_daily_listing_performance`). Its calendar activity is preserved via a
 `LEFT JOIN` rather than dropped; neighborhood and amenity fields are null
 for it since they can't be resolved. This is why the `relationships` tests
-above are `warn`, not `error` — the gap is known, investigated, and an
+above are `warn`, not `error` - the gap is known, investigated, and an
 intentional design choice rather than an unhandled failure.
 
 ## Assumptions
 
 - Null listing IDs in the extract are excluded in staging.
 - Duplicate calendar rows for the same listing and date keep the highest
-  price (only one listing in this dataset has this issue — a true 1:1
-  byte-duplicate — so price is a defensible tie-breaker over an arbitrary
+  price (only one listing in this dataset has this issue - a true 1:1
+  byte-duplicate - so price is a defensible tie-breaker over an arbitrary
   pick).
 - `minimum_nights`/`maximum_nights` reflect listing configuration as of the
   source extract, not necessarily the rule enforced at the time of each
   historical reservation.
 - Comparison dates for neighborhood pricing are set via vars
-  (`pricing_compare_date_past`, `pricing_compare_date_recent` — defaults
+  (`pricing_compare_date_past`, `pricing_compare_date_recent` - defaults
   `2021-07-12` and `2022-07-11`) rather than hardcoded in SQL, so the
   report can be re-run for a different window without a code change.

@@ -12,7 +12,7 @@ models:
       - name: listing_id
         description: >
           Foreign key referencing stg_listings. Known exception: listing_id 276450
-          has no match (365 rows) — see fct_daily_listing_performance docs for details.
+          has no match (365 rows) - see fct_daily_listing_performance docs for details.
         tests:
           - not_null
           - relationships:

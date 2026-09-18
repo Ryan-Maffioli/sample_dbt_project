@@ -33,7 +33,7 @@ WITH
 --#3: Now, we are going to combine our calendar, amenities, and listings data.
 --#3B: In this CTE, we are also going to flag the ac, lockbox, and first aid amenities.
 --#3C: LEFT JOIN dim_listings preserves calendar activity for listing_ids
--- absent from stg_listings (e.g. 276450 — 365 booked nights, $76,520
+-- absent from stg_listings (e.g. 276450 - 365 booked nights, $76,520
 -- revenue, no listings-table metadata). Neighborhood and amenity flags
 -- are null for these rows since they can't be determined, which
 -- correctly excludes them from reports that require those attributes,
