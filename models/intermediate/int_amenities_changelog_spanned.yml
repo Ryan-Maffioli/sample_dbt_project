@@ -2,19 +2,26 @@ version: 2
 
 models:
   - name: int_amenities_changelog_spanned
-    description: "SCD Type 2 transformation transforming changelog event timestamps into valid_from and valid_to date windows."
+    description: >
+      SCD Type 2 windows from changelog events. Same-day changes keep the latest
+      timestamp. valid_from = valid_to is a valid one-day window.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - listing_id
+            - valid_from
     columns:
       - name: listing_id
-        description: "Foreign key referencing stg_listings."
+        description: Foreign key referencing stg_listings.
         tests:
           - not_null
       - name: amenities
-        description: "Parsed BigQuery ARRAY<STRING> of amenities active during window."
+        description: Parsed ARRAY<STRING> of trimmed amenity names active during the window.
       - name: valid_from
-        description: "Start date of amenity configuration window."
+        description: Inclusive start date of the amenity configuration window.
         tests:
           - not_null
       - name: valid_to
-        description: "End date of amenity configuration window (defaults to 9999-12-31 for current state)."
+        description: Inclusive end date of the window (9999-12-31 for the current configuration).
         tests:
           - not_null

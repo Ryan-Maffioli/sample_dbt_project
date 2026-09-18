@@ -1,7 +1,7 @@
 {{
     config(
         materialized = "table",
-        cluster_by = ["neighborhood"]
+        cluster_by = ["date", "listing_id"]
     )
 }}
 
@@ -32,6 +32,8 @@ WITH
 
 --#3: Now, we are going to combine our calendar, amenities, and listings data.
 --#3B: In this CTE, we are also going to flag the ac, lockbox, and first aid amenities.
+--#3C: INNER JOIN dim_listings drops calendar rows for listing_ids that were cleaned out of staging.
+--#3D: Amenity flags are NULL when the daily amenity array is unknown, so they are not treated as false.
     transformed AS (
         SELECT 
             c.date,
@@ -45,23 +47,32 @@ WITH
             a.amenities,
             
             --Pre-calculated boolean flags for high-frequency queries.
-            EXISTS (
-                SELECT 1 
-                FROM UNNEST(a.amenities) AS item 
-                WHERE LOWER(item) = 'air conditioning'
-            ) AS has_ac,
+            CASE
+                WHEN a.amenities IS NULL THEN CAST(NULL AS BOOL)
+                ELSE EXISTS (
+                    SELECT 1 
+                    FROM UNNEST(a.amenities) AS item 
+                    WHERE LOWER(item) = 'air conditioning'
+                )
+            END AS has_ac,
             
-            EXISTS (
-                SELECT 1 
-                FROM UNNEST(a.amenities) AS item 
-                WHERE LOWER(item) = 'lockbox'
-            ) AS has_lockbox,
+            CASE
+                WHEN a.amenities IS NULL THEN CAST(NULL AS BOOL)
+                ELSE EXISTS (
+                    SELECT 1 
+                    FROM UNNEST(a.amenities) AS item 
+                    WHERE LOWER(item) = 'lockbox'
+                )
+            END AS has_lockbox,
 
-            EXISTS (
-                SELECT 1 
-                FROM UNNEST(a.amenities) AS item 
-                WHERE LOWER(item) = 'first aid kit'
-            ) AS has_first_aid_kit
+            CASE
+                WHEN a.amenities IS NULL THEN CAST(NULL AS BOOL)
+                ELSE EXISTS (
+                    SELECT 1 
+                    FROM UNNEST(a.amenities) AS item 
+                    WHERE LOWER(item) = 'first aid kit'
+                )
+            END AS has_first_aid_kit
 
         FROM stg_calendar AS c
         INNER JOIN listings AS l

@@ -1,102 +1,57 @@
 ## Analytics Engineering Work
 
-## Overview
-
 This project transforms listing, calendar, and amenity changelog data
 into a daily listing-level analytical mart and reporting models.
 
 ## Architecture
 
-Source
-  ↓
-Staging
-  ↓
-Intermediate
-  ↓
-Core Marts
-  ↓
-Reporting
+```
+source → staging → intermediate → core marts → reporting
+```
 
-## Model Structure
+- `stg_listings`, `stg_calendar`, `stg_amenities_changelog`
+- `int_amenities_changelog_spanned`, `int_daily_listing_amenities`
+- `dim_listings`, `fct_daily_listing_performance`
+- `rpt_amenity_revenue_monthly`, `rpt_neighborhood_pricing_change`, `rpt_picky_renter_longest_stay`
 
-stg_listings
-stg_calendar
-stg_amenities_changelog
+`stg_calendar` is a table because it deduplicates listing-date rows. Other
+staging models are views.
 
-        ↓
-
-int_amenities_changelog_spanned
-int_daily_listing_amenities
-
-        ↓
-
-dim_listings
-fct_daily_listing_performance
-
-        ↓
-
-rpt_amenity_revenue_monthly
-rpt_neighborhood_pricing_change
-rpt_picky_renter_longest_stay
-
-## Key Modeling Decisions
+## Key modeling decisions
 
 ### Daily listing grain
-...
+
+The fact is one row per listing and calendar date. Neighborhood is denormalized
+from `dim_listings` at build time.
 
 ### Point-in-time amenities
-...
+
+Changelog records are treated as complete amenity configurations, not diffs.
+Same-day changes keep the latest timestamp. Windows are inclusive
+(`valid_from` through `valid_to`); a one-day window is valid.
+
+Dates before the first changelog window use the listing baseline amenity
+array. Dates covered by a window use that window. Listings with no baseline
+and no covering window have null amenities and null amenity flags.
 
 ### Revenue
-...
+
+A calendar date counts as booked revenue when `reservation_id` is not null.
+Revenue is the nightly `price` on that date. Cleaning fees, taxes, and other
+charges are not in the source data. Blocked nights (unavailable, no
+reservation) are not revenue. Nights with unknown AC status are excluded from
+the AC revenue split.
 
 ### Longest possible stay
-...
 
-## Testing
+A continuous stay requires every calendar date in the interval to be available,
+with both lockbox and first aid kit on those dates. From each start date the
+length is remaining nights in that availability island, capped by that night's
+`maximum_nights`, and only counted if it also meets `minimum_nights`.
 
-...
+## Assumptions
 
-## Assumptions / Trade-offs
-
-## Amenity changes
-
-## The listings table represents the baseline amenity state.
-## Changelog records represent subsequent complete amenity configurations.
-## A changelog configuration supersedes the baseline configuration from its effective date onward.
-## Multiple amenity changes occurring within the same day are handled according to X.
-
-## Revenue
-
-## A calendar date with a reservation represents one night of revenue.
-## Revenue is calculated using the calendar price for that night.
-## No cleaning fees, taxes, or other charges are represented in the provided source data.
-
-## Availability
-
-## A continuous stay requires every calendar date in the interval to be available.
-## Maximum stay restrictions are applied according to X.
-
-
-## Architecture
-              ┌─────────────────┐
-              │ source_listings │
-              └────────┬────────┘
-                       ↓
-                 stg_listings
-                       │
-                       ↓
-                  dim_listings
-                       │
-                       │
-source_calendar → stg_calendar ──────┐
-                                     ↓
-source_amenities → stg_amenities → changelog_spanned
-                                     ↓
-                         daily_listing_amenities
-                                     ↓
-                         fct_daily_listing_performance
-                              /        |        \
-                             /         |         \
-                            ↓          ↓          ↓
-                       revenue     pricing    picky renter
+- Null listing IDs in the extract are excluded in staging.
+- Duplicate calendar rows for the same listing and date keep the highest price.
+- Comparison dates for neighborhood pricing are `pricing_compare_date_past`
+  and `pricing_compare_date_recent` (defaults 2021-07-12 and 2022-07-11).

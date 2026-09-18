@@ -6,12 +6,13 @@
 
 --#1: Start by bringing in the source table(s) we are going to need.
 WITH 
-    source_listings AS (SELECT * FROM {{source('source_listings', 'listings')}}),
+    source_listings AS (SELECT * FROM {{ source('source_listings', 'listings') }}),
 
 --#2: Then we are just going to do some basic renaming to make this materialization a bit more friendly.
 --#2B: I also made a judgement call to exclude listings with NULL listing_ids. 
 --#2C: One of them explicitly says it is a test record. 
 --#2D: The other appears to be somewhat valid, but would essentially require us creating a mock listing_id for it.
+--#2E: Parse listing_price to numeric so $ strings and already-numeric values both work downstream.
     cleaned AS (
         SELECT 
             ID                   AS listing_id,
@@ -29,7 +30,7 @@ WITH
             BEDROOMS             AS bedrooms,
             BEDS                 AS beds,
             AMENITIES            AS amenities,
-            PRICE                AS listing_price,
+            {{ parse_money('price') }} AS listing_price,
             NUMBER_OF_REVIEWS    AS review_count,
             FIRST_REVIEW         AS first_review_date,
             LAST_REVIEW          AS last_review_date,
@@ -48,4 +49,3 @@ WITH
     --#4: Final output.
     SELECT *
     FROM final
-

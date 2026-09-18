@@ -16,7 +16,6 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
-# Global variables accessible by any model using {{ var('variable_name') }}
 vars:
   pricing_compare_date_past: '2021-07-12'
   pricing_compare_date_recent: '2022-07-11'
@@ -28,26 +27,21 @@ models:
       columns: true
 
     staging:
-      # Thin passthroughs: cheap and always fresh.
       +materialized: view
       +schema: staging
+      stg_calendar:
+        +materialized: table
 
     intermediate:
-      # Expensive range/cross joins: compute once, read many.
       +materialized: table
       +schema: intermediate
 
     marts:
       core:
-        # Default for the core layer is table (for the heavy daily fact).
         +materialized: table
         +schema: core
-        
-        # Override the core default just for this lightweight dimension.
         dim_listings:
           +materialized: view
-          
       reporting:
-        # BI-consumed aggregations.
         +materialized: table
         +schema: reporting

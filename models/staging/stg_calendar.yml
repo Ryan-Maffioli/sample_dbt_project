@@ -2,32 +2,42 @@ version: 2
 
 models:
   - name: stg_calendar
-    description: "Cleaned daily calendar grain table with standardized column names and boolean availability."
+    description: Daily calendar grain with boolean availability, numeric price, null listing IDs removed, and one row per listing_id and date.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - listing_id
+            - date
     columns:
       - name: listing_id
-        description: "Foreign key referencing stg_listings."
+        description: Foreign key referencing stg_listings.
         tests:
           - not_null
+          - relationships:
+              to: ref('stg_listings')
+              field: listing_id
+              config:
+                severity: warn
       - name: date
-        description: "Date of listing availability or reservation snapshot."
+        description: Date of listing availability or reservation snapshot.
         tests:
           - not_null
       - name: is_available
-        description: "Boolean indicator designating whether listing is open for booking."
+        description: Boolean indicator designating whether listing is open for booking.
         tests:
           - not_null
           - accepted_values:
               values: [true, false]
               quote: false
       - name: reservation_id
-        description: "Foreign key to reservation identifier. NULL if property is unreserved."
+        description: Reservation identifier. NULL if the night is unreserved.
       - name: price
-        description: "Nightly rate charged for specific calendar date."
+        description: Nightly rate charged for the calendar date, parsed to numeric.
         tests:
           - not_null
           - dbt_utils.expression_is_true:
               expression: ">= 0"
       - name: minimum_nights
-        description: "Minimum consecutive nights required for booking."
+        description: Minimum consecutive nights required for booking.
       - name: maximum_nights
-        description: "Maximum consecutive nights allowed for booking."
+        description: Maximum consecutive nights allowed for booking.

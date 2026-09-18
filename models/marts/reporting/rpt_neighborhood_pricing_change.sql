@@ -43,13 +43,21 @@ WITH
     ),
 
 --#5: Aggregate the metrics at the neighborhood grain.
+-- avg_pct_price_change is the percent change of the neighborhood averages between the two dates.
     neighborhood_aggregates AS (
         SELECT 
             neighborhood,
             COUNT(listing_id) AS total_listings,
             AVG(price_past) AS avg_price_past,
             AVG(price_recent) AS avg_price_recent,
-            AVG(price_recent) - AVG(price_past) AS avg_price_increase
+            AVG(price_recent) - AVG(price_past) AS avg_price_increase,
+            ROUND(
+                SAFE_DIVIDE(
+                    AVG(price_recent) - AVG(price_past),
+                    AVG(price_past)
+                ) * 100,
+                1
+            ) AS avg_pct_price_change
         FROM combined_prices
         GROUP BY 1
     ),

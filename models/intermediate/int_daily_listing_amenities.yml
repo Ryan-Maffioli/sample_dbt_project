@@ -2,8 +2,11 @@ version: 2
 
 models:
   - name: int_daily_listing_amenities
-    description: "Daily point-in-time cross join mapping effective daily amenity arrays to every listing date. \n\n**Grain:** One row per `listing_id` and `date`."
-    # Enforces the composite grain to ensure no fan-out occurred during the changelog join.
+    description: >
+      Daily point-in-time amenity arrays. Changelog windows take precedence;
+      otherwise the listing baseline array is used.
+
+      Grain: one row per listing_id and date.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -11,12 +14,12 @@ models:
             - date
     columns:
       - name: listing_id
-        description: "Composite key part 1: Property identifier."
+        description: Composite key part 1. Property identifier.
         tests:
           - not_null
       - name: date
-        description: "Composite key part 2: Calendar date."
+        description: Composite key part 2. Calendar date.
         tests:
           - not_null
       - name: amenities
-        description: "Effective BigQuery ARRAY<STRING> active on specific date (falls back to baseline if no changelog exists)."
+        description: Effective ARRAY<STRING> on the date. Null when neither changelog nor listing baseline exists.

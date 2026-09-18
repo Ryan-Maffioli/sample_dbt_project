@@ -2,15 +2,20 @@ version: 2
 
 models:
   - name: stg_amenities_changelog
-    description: "Historical audit log capturing amenity configuration updates made by hosts."
+    description: Historical audit log of amenity configuration updates, with null listing IDs removed.
     columns:
       - name: listing_id
-        description: "Foreign key referencing stg_listings."
+        description: Foreign key referencing stg_listings.
         tests:
           - not_null
+          - relationships:
+              to: ref('stg_listings')
+              field: listing_id
+              config:
+                severity: warn
       - name: change_ts
-        description: "Timestamp when amenity updates took effect."
+        description: Timestamp when amenity updates took effect.
         tests:
           - not_null
       - name: amenities
-        description: "JSON array of active amenities as of the change timestamp."
+        description: JSON array of active amenities as of the change timestamp.

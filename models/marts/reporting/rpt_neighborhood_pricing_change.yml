@@ -2,18 +2,23 @@ version: 2
 
 models:
   - name: rpt_neighborhood_pricing_change
-    description: "Neighborhood-level pricing analysis comparing July 12, 2021 against July 11, 2022."
+    description: >
+      Neighborhood average nightly prices for listings present on both
+      pricing_compare_date_past and pricing_compare_date_recent
+      (defaults 2021-07-12 and 2022-07-11). Grain: one row per neighborhood.
     columns:
       - name: neighborhood
-        description: "Primary neighborhood grouping."
+        description: Neighborhood grouping from the past comparison date.
         tests:
           - unique
           - not_null
       - name: total_listings
-        description: "Count of active listings present in neighborhood on both comparison dates."
+        description: Count of listings present in the neighborhood on both comparison dates.
       - name: avg_price_past
-        description: "Average price on July 12, 2021."
+        description: Average nightly price on pricing_compare_date_past.
       - name: avg_price_recent
-        description: "Average price on July 11, 2022."
+        description: Average nightly price on pricing_compare_date_recent.
       - name: avg_price_increase
-        description: "Average price difference across listings from 2021 to 2022."
+        description: Average recent price minus average past price for the same listing cohort.
+      - name: avg_pct_price_change
+        description: Percent change of the neighborhood average price between the two dates.

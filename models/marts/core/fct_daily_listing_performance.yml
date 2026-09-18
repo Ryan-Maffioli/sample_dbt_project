@@ -2,8 +2,11 @@ version: 2
 
 models:
   - name: fct_daily_listing_performance
-    description: "Primary daily fact table containing metrics, availability, and point-in-time amenity boolean flags. \n\n**Grain:** One row per (`listing_id` + `date`).\n\n{{ doc('fct_daily_listing_performance_architecture') }}"
-    # Validates the final reporting grain is intact
+    description: >
+      Daily fact of price, availability, and point-in-time amenity flags.
+      Grain: one row per listing_id and date.
+
+      {{ doc('fct_daily_listing_performance_architecture') }}
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -11,46 +14,42 @@ models:
             - date
     columns:
       - name: date
-        description: "Calendar snapshot date."
+        description: Calendar snapshot date.
         tests:
           - not_null
       - name: listing_id
-        description: "Foreign key linking to dim_listings."
+        description: Foreign key linking to dim_listings.
         tests:
           - not_null
           - relationships:
               to: ref('dim_listings')
               field: listing_id
       - name: neighborhood
-        description: "Listing neighborhood location."
+        description: Listing neighborhood location from dim_listings at build time.
       - name: reservation_id
-        description: "Identifier for reservation if booked."
+        description: Identifier for reservation if booked.
       - name: is_available
+        description: Whether the listing is open for booking on this date.
         tests:
           - not_null
           - accepted_values:
               values: [true, false]
               quote: false
       - name: price
+        description: Nightly rate for this date.
         tests:
           - not_null
           - dbt_utils.expression_is_true:
               expression: ">= 0"
       - name: minimum_nights
-        description: "Minimum stay constraint enforced on date."
+        description: Minimum stay constraint enforced on date.
       - name: maximum_nights
-        description: "Maximum stay constraint enforced on date."
+        description: Maximum stay constraint enforced on date.
       - name: amenities
-        description: "ARRAY<STRING> of active amenities on date."
+        description: ARRAY<STRING> of active amenities on date. Null when amenity state is unknown.
       - name: has_ac
         description: '{{ doc("amenity_has_ac") }}'
-        tests:
-          - not_null
       - name: has_lockbox
         description: '{{ doc("amenity_has_lockbox") }}'
-        tests:
-          - not_null
       - name: has_first_aid_kit
         description: '{{ doc("amenity_has_first_aid_kit") }}'
-        tests:
-          - not_null

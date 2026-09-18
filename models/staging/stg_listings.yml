@@ -2,56 +2,56 @@ version: 2
 
 models:
   - name: stg_listings
-    description: "Cleaned listing entity table with standardized column names and baseline JSON amenity parsing."
+    description: Cleaned listing entities with renamed columns, null listing IDs removed, and baseline price parsed to numeric. Amenity JSON is parsed downstream at daily grain.
     columns:
       - name: listing_id
-        description: "Primary key for rental property listings."
+        description: Primary key for rental property listings.
         tests:
           - unique
           - not_null
       - name: listing_name
-        description: "Display name of the listing."
+        description: Display name of the listing.
       - name: host_id
-        description: "Unique identifier for the property host."
+        description: Unique identifier for the property host.
         tests:
           - not_null
       - name: host_name
-        description: "Display name of the property host."
+        description: Display name of the property host.
       - name: host_since_ts
-        description: "Timestamp when host registered on platform."
+        description: Date the host registered on the platform.
       - name: host_location
-        description: "Geographic location of host."
+        description: Geographic location of host.
       - name: host_verifications
-        description: "JSON array string of verification methods completed by host."
+        description: JSON array string of verification methods completed by host.
       - name: neighborhood
-        description: "Neighborhood where listing is located."
+        description: Neighborhood where listing is located.
         tests:
           - not_null
       - name: property_type
-        description: "Classification of property (e.g., Apartment, House)."
+        description: Classification of property (e.g., Apartment, House).
       - name: room_type
-        description: "Privacy classification of accommodation."
+        description: Privacy classification of accommodation.
         tests:
           - not_null
           - accepted_values:
               values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
       - name: capacity_accommodated
-        description: "Maximum guest capacity."
+        description: Maximum guest capacity.
       - name: bathrooms
-        description: "Text description of available bathrooms."
+        description: Text description of available bathrooms.
       - name: bedrooms
-        description: "Total bedroom count."
+        description: Total bedroom count.
       - name: beds
-        description: "Total bed count."
+        description: Total bed count.
       - name: amenities
-        description: "JSON array of baseline amenities available at property setup."
+        description: Raw JSON array of baseline amenities at listing setup. Parsed in intermediate models.
       - name: listing_price
-        description: "Baseline listing price at start of calendar tracking period."
+        description: Baseline listing price at start of calendar tracking period, parsed to numeric.
       - name: review_count
-        description: "Lifetime review count for listing."
+        description: Lifetime review count for listing.
       - name: first_review_date
-        description: "Date of first guest review."
+        description: Date of first guest review.
       - name: last_review_date
-        description: "Date of most recent guest review."
+        description: Date of most recent guest review.
       - name: listing_ratings
-        description: "Average overall guest review score rating."
+        description: Average overall guest review score rating.

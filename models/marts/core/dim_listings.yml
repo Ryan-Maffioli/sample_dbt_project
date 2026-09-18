@@ -3,45 +3,45 @@ version: 2
 models:
   - name: dim_listings
     description: >
-      "Core dimensional entity table for rental properties, host metadata, and physical capacity."
-      "**Grain:** One row per listing_id."
+      Core listing dimension for property, host, and capacity attributes.
+      Grain: one row per listing_id.
     columns:
       - name: listing_id
-        description: "Primary key for listing dimension."
+        description: Primary key for listing dimension.
         tests:
           - unique
           - not_null
       - name: listing_name
-        description: "Display title of property listing."
+        description: Display title of property listing.
       - name: host_id
-        description: "Unique identifier for host owner."
+        description: Unique identifier for host owner.
       - name: host_name
-        description: "Name of host owner."
+        description: Name of host owner.
       - name: host_since_ts
-        description: "Date host registered on platform."
+        description: Date host registered on platform.
       - name: host_location
-        description: "Primary location of host."
+        description: Primary location of host.
       - name: neighborhood
-        description: "Neighborhood region."
+        description: Neighborhood region.
         tests:
           - not_null
       - name: property_type
-        description: "Structural property categorization."
+        description: Structural property categorization.
       - name: room_type
-        description: "Privacy classification of accommodation."
+        description: Privacy classification of accommodation.
         tests:
           - not_null
           - accepted_values:
               values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
       - name: capacity_accommodated
-        description: "Maximum guest limit."
+        description: Maximum guest limit.
       - name: bedrooms
-        description: "Total bedrooms."
+        description: Total bedrooms.
       - name: beds
-        description: "Total beds."
+        description: Total beds.
       - name: baseline_price
-        description: "Baseline rental price."
+        description: Baseline rental price parsed to numeric.
       - name: review_count
-        description: "Lifetime guest review count."
+        description: Lifetime guest review count.
       - name: listing_ratings
-        description: "Historical average rating score."
+        description: Historical average rating score.

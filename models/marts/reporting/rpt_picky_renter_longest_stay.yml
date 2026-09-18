@@ -3,11 +3,13 @@ version: 2
 models:
   - name: rpt_picky_renter_longest_stay
     description: >
-       "Calculates maximum allowable continuous stay length for listings matching Lockbox + First Aid Kit requirements."
-       "**Grain:** One row per listing_id."
+      Longest bookable continuous stay for listings that have both a lockbox
+      and a first aid kit. Length is remaining available nights from each
+      start date, capped by that night's maximum_nights, and only counted
+      when it also meets minimum_nights. Grain: one row per listing_id.
     columns:
       - name: listing_id
-        description: "Primary key for listing analysis."
+        description: Primary key for listing analysis.
         tests:
           - unique
           - not_null
@@ -15,6 +17,6 @@ models:
               to: ref('dim_listings')
               field: listing_id
       - name: longest_possible_stay
-        description: "Longest unbroken sequence of available days capped by owner maximum_nights policy."
+        description: Longest remaining available streak from a valid start date, capped by maximum_nights and meeting minimum_nights.
         tests:
           - not_null

@@ -2,25 +2,22 @@ version: 2
 
 sources:
   - name: source_amenities_changelog
-    description: "Raw audit event log tracking modifications made to listing amenity configurations over time."
+    description: Raw audit event log tracking modifications made to listing amenity configurations over time.
     database: dbt-rmaffioli
     schema: source_amenities_changelog
-    freshness:
-      warn_after: {count: 24, period: hour}
-      error_after: {count: 48, period: hour}
     tables:
       - name: amenities_changelog
-        description: "Historical audit log capturing incremental host updates to active property amenities."
+        description: Historical audit log capturing host updates to the full active amenity list after each change.
         columns:
           - name: listing_id
-            description: "Foreign key joining to source_listings table."
+            description: Foreign key joining to source_listings table.
             tests:
               - not_null
           - name: change_at
-            description: "Timestamp recording precise moment amenity array was updated."
+            description: Timestamp recording precise moment amenity array was updated.
             tests:
               - not_null
           - name: amenities
-            description: "Raw JSON string array representing complete active amenity list post-update."
+            description: Raw JSON string array representing complete active amenity list post-update.
             tests:
               - not_null
