@@ -22,8 +22,8 @@ WITH
 
 --#3: Make use of a final CTE (per dbt best practices). This makes dqa easier if ever need be.
     final AS (
-    SELECT *
-    FROM cleaned
+        SELECT *
+        FROM cleaned
     )
 
 --#4: Final Output.

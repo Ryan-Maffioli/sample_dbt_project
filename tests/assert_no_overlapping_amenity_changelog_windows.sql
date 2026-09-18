@@ -18,7 +18,7 @@ SELECT
     prev_valid_to
 FROM window_checks
 WHERE 
-    -- 1. Inverted window (valid_from occurs after valid_to). Equal dates are a valid one-day window.
+    --#1: Inverted window (valid_from occurs after valid_to). Equal dates are a valid one-day window.
     valid_from > valid_to
-    -- 2. Overlap where current span starts on or before the previous span closed (inclusive BETWEEN).
+    --#2: Overlap where current span starts on or before the previous span closed (inclusive BETWEEN).
     OR (prev_valid_to IS NOT NULL AND valid_from <= prev_valid_to)

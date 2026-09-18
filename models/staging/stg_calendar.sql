@@ -13,20 +13,17 @@ WITH
 --#2C: Parse PRICE to numeric so $ strings and already-numeric values both work downstream.
     cleaned AS (
         SELECT 
-            LISTING_ID     AS listing_id,
-            DATE           AS date,
+            LISTING_ID                          AS listing_id,
+            DATE                                AS date,
             {{ parse_tf_boolean('available') }} AS is_available,
-            RESERVATION_ID AS reservation_id, 
-            {{ parse_money('price') }} AS price,
-            MINIMUM_NIGHTS AS minimum_nights,
-            MAXIMUM_NIGHTS AS maximum_nights
+            RESERVATION_ID                      AS reservation_id, 
+            {{ parse_money('price') }}          AS price,
+            MINIMUM_NIGHTS                      AS minimum_nights,
+            MAXIMUM_NIGHTS                      AS maximum_nights
         FROM source_calendar
         WHERE 1=1 
         AND listing_id IS NOT NULL
-        QUALIFY ROW_NUMBER() OVER (
-            PARTITION BY listing_id, date
-            ORDER BY {{ parse_money('price') }} DESC
-        ) = 1 
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY listing_id, date ORDER BY {{ parse_money('price') }} DESC) = 1 
         --Tie-breaker: selects highest price if duplicate entries exist.
         --Given listing_id = 1303261 is the only duplicate entry, and it is a true 1:1 byte dupe, using price as a tie breaker is better than arbitrarily just choosing a record. 
     ),

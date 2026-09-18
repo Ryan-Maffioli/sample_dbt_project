@@ -84,7 +84,7 @@ WITH
         LEFT JOIN daily_amenities AS a
             ON c.listing_id = a.listing_id
             AND c.date = a.date
-            ),
+        ),
 
 --#4: Make use of our final CTE.
     final AS (
