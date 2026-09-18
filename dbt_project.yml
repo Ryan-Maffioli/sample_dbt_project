@@ -28,26 +28,26 @@ models:
       columns: true
 
     staging:
-      # Thin passthroughs: cheap and always fresh
+      # Thin passthroughs: cheap and always fresh.
       +materialized: view
       +schema: staging
 
     intermediate:
-      # Expensive range/cross joins: compute once, read many
+      # Expensive range/cross joins: compute once, read many.
       +materialized: table
       +schema: intermediate
 
     marts:
       core:
-        # Default for the core layer is table (for the heavy daily fact)
+        # Default for the core layer is table (for the heavy daily fact).
         +materialized: table
         +schema: core
         
-        # Override the core default just for this lightweight dimension
+        # Override the core default just for this lightweight dimension.
         dim_listings:
           +materialized: view
           
       reporting:
-        # BI-consumed aggregations
+        # BI-consumed aggregations.
         +materialized: table
         +schema: reporting
