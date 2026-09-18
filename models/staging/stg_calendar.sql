@@ -23,6 +23,7 @@ WITH
         AND listing_id IS NOT NULL
         QUALIFY ROW_NUMBER() OVER (PARTITION BY listing_id, date ORDER BY price DESC) = 1 
         --Tie-breaker: selects highest price if duplicate entries exist.
+        --Given listing_id = 1303261 is the only duplicate entry, and it is a true 1:1 byte dupe, using price as a tie breaker is better than arbitrarily just choosing a record. 
     ),
 
 --#3: Make use of a final cte (per dbt best practices). Makes dqa easier if ever need be.

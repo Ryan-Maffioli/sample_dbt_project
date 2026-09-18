@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: fct_daily_listing_performance
-    description: "Primary daily fact table containing metrics, availability, and point-in-time amenity boolean flags. \n\n**Grain:** One row per `calendar_id` (`listing_id` + `date`).\n\n{{ doc('fct_daily_listing_performance_architecture') }}"
+    description: "Primary daily fact table containing metrics, availability, and point-in-time amenity boolean flags. \n\n**Grain:** One row per (`listing_id` + `date`).\n\n{{ doc('fct_daily_listing_performance_architecture') }}"
     # Validates the final reporting grain is intact
     tests:
       - dbt_utils.unique_combination_of_columns:

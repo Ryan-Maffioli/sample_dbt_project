@@ -19,7 +19,9 @@ WITH
             has_ac,
             SUM(price) AS total_revenue
         FROM fct_daily_listing_performance
-        WHERE is_available = FALSE  -- Only booked days count toward revenue.
+        WHERE reservation_id IS NOT NULL  
+        --Only booked days count toward revenue.
+        --Revenue is calculated from nightly price on dates with an associated reservation.
         GROUP BY 1, 2
     ),
 
@@ -32,7 +34,6 @@ WITH
             SUM(total_revenue) OVER (PARTITION BY month) AS monthly_total_revenue,
             ROUND(SAFE_DIVIDE(total_revenue, SUM(total_revenue) OVER (PARTITION BY month)) * 100, 1) AS pct_of_monthly_revenue
         FROM monthly_revenue
-        ORDER BY month ASC, has_ac DESC
     ),
 
 --#4: Make use of our final CTE.

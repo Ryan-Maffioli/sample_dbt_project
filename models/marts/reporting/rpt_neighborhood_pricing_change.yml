@@ -11,9 +11,9 @@ models:
           - not_null
       - name: total_listings
         description: "Count of active listings present in neighborhood on both comparison dates."
-      - name: avg_price_2021
+      - name: avg_price_past
         description: "Average price on July 12, 2021."
-      - name: avg_price_2022
+      - name: avg_price_recent
         description: "Average price on July 11, 2022."
       - name: avg_price_increase
         description: "Average price difference across listings from 2021 to 2022."

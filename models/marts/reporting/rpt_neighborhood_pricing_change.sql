@@ -47,8 +47,8 @@ WITH
         SELECT 
             neighborhood,
             COUNT(listing_id) AS total_listings,
-            AVG(price_past) AS avg_price_2021,
-            AVG(price_recent) AS avg_price_2022,
+            AVG(price_past) AS avg_price_past,
+            AVG(price_recent) AS avg_price_recent,
             AVG(price_recent) - AVG(price_past) AS avg_price_increase
         FROM combined_prices
         GROUP BY 1
@@ -58,7 +58,6 @@ WITH
     final AS (
         SELECT *
         FROM neighborhood_aggregates
-        ORDER BY avg_price_increase DESC
     )
 
 --#7: Final output.
