@@ -19,6 +19,7 @@ WITH
             price AS price_past
         FROM fct_daily_listing_performance
         WHERE date = CAST('{{ var("pricing_compare_date_past") }}' AS DATE)
+        AND neighborhood IS NOT NULL
     ),
 
 --#3: Isolate the recent prices for the current comparison date.

@@ -5,8 +5,8 @@ models:
     description: >
       Daily fact of price, availability, and point-in-time amenity flags.
       Grain: one row per listing_id and date.
-
       {{ doc('fct_daily_listing_performance_architecture') }}
+      {{ doc('listing_id_276450') }}
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -24,6 +24,8 @@ models:
           - relationships:
               to: ref('dim_listings')
               field: listing_id
+              config:
+                severity: warn
       - name: neighborhood
         description: Listing neighborhood location from dim_listings at build time.
       - name: reservation_id

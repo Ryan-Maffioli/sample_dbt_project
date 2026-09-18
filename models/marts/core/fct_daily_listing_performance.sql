@@ -32,8 +32,12 @@ WITH
 
 --#3: Now, we are going to combine our calendar, amenities, and listings data.
 --#3B: In this CTE, we are also going to flag the ac, lockbox, and first aid amenities.
---#3C: INNER JOIN dim_listings drops calendar rows for listing_ids that were cleaned out of staging.
---#3D: Amenity flags are NULL when the daily amenity array is unknown, so they are not treated as false.
+--#3C: LEFT JOIN dim_listings preserves calendar activity for listing_ids
+-- absent from stg_listings (e.g. 276450 — 365 booked nights, $76,520
+-- revenue, no listings-table metadata). Neighborhood and amenity flags
+-- are null for these rows since they can't be determined, which
+-- correctly excludes them from reports that require those attributes,
+-- while keeping raw revenue/occupancy intact for general mart queries.
     transformed AS (
         SELECT 
             c.date,
@@ -75,12 +79,12 @@ WITH
             END AS has_first_aid_kit
 
         FROM stg_calendar AS c
-        INNER JOIN listings AS l
+        LEFT JOIN listings AS l
             ON c.listing_id = l.listing_id
         LEFT JOIN daily_amenities AS a
             ON c.listing_id = a.listing_id
-        AND c.date = a.date
-    ),
+            AND c.date = a.date
+            ),
 
 --#4: Make use of our final CTE.
     final AS (
