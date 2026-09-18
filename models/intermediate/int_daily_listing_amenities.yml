@@ -2,7 +2,13 @@ version: 2
 
 models:
   - name: int_daily_listing_amenities
-    description: "Daily point-in-time cross join mapping effective daily amenity arrays to every listing date."
+    description: "Daily point-in-time cross join mapping effective daily amenity arrays to every listing date. \n\n**Grain:** One row per `listing_id` and `date`."
+    # Enforces the composite grain to ensure no fan-out occurred during the changelog join.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - listing_id
+            - date
     columns:
       - name: listing_id
         description: "Composite key part 1: Property identifier."

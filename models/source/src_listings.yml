@@ -2,9 +2,59 @@ version: 2
 
 sources:
   - name: source_listings
-    project: dbt-rmaffioli
-    dataset: source_listings
-    loader: manual_csv
-    
+    description: "Raw rental listing source data containing property metadata, host details, and baseline amenities."
+    database: dbt-rmaffioli
+    schema: source_listings
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 48, period: hour}
     tables:
       - name: listings
+        description: "Point-in-time snapshot of listing attributes as of the start of the calendar tracking range."
+        columns:
+          - name: ID
+            description: "Unique primary identifier for the raw listing entity."
+            tests:
+              - unique
+          - name: NAME
+            description: "Public display title of the rental property listing."
+          - name: HOST_ID
+            description: "Unique primary identifier for the property owner/host."
+            tests:
+              - not_null
+          - name: HOST_NAME
+            description: "First name or display name of the property host."
+          - name: HOST_SINCE
+            description: "Date when the host profile was created on the platform."
+          - name: HOST_LOCATION
+            description: "Self-reported geographic location of the host."
+          - name: HOST_VERIFICATIONS
+            description: "JSON array string of identity verification methods completed by the host."
+          - name: NEIGHBORHOOD
+            description: "Geographic district or neighborhood region where property is situated."
+            tests:
+              - not_null
+          - name: PROPERTY_TYPE
+            description: "Structural classification of accommodation (e.g., Apartment, House, Condominium)."
+          - name: ROOM_TYPE
+            description: "Privacy classification of accommodation (e.g., Entire place, Private room, Shared room)."
+          - name: ACCOMODATIONS
+            description: "Maximum guest occupancy capacity permitted for property."
+          - name: BATHROOMS_TEXT
+            description: "Textual description of bathroom count and configuration."
+          - name: BEDROOMS
+            description: "Total count of dedicated bedrooms available."
+          - name: BEDS
+            description: "Total count of sleeping beds available."
+          - name: AMENITIES
+            description: "Raw JSON string array detailing baseline amenities provided at listing initialization."
+          - name: PRICE
+            description: "Default baseline nightly listing rate expressed as raw string or numeric value."
+          - name: NUMBER_OF_REVIEWS
+            description: "Cumulative lifetime review count accumulated by listing."
+          - name: FIRST_REVIEW
+            description: "Date stamp of earliest guest review recorded."
+          - name: LAST_REVIEW
+            description: "Date stamp of most recent guest review recorded."
+          - name: REVIEW_SCORES_RATING
+            description: "Aggregate overall guest satisfaction score rating."

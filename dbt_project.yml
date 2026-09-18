@@ -16,27 +16,38 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+# Global variables accessible by any model using {{ var('variable_name') }}
+vars:
+  pricing_compare_date_past: '2021-07-12'
+  pricing_compare_date_recent: '2022-07-11'
+
 models:
   dbt_rmaffioli:
     +persist_docs:
       relation: true
       columns: true
-    # Staging Layer: Lightweight views for initial cleanup & casting
+
     staging:
+      # Thin passthroughs: cheap and always fresh
       +materialized: view
       +schema: staging
 
-    # Intermediate Layer: Complex transforms, time-spans, and array logic
     intermediate:
-      +materialized: view
+      # Expensive range/cross joins: compute once, read many
+      +materialized: table
       +schema: intermediate
 
-    # Marts Layer: Core facts/dims and final business queries
     marts:
       core:
+        # Default for the core layer is table (for the heavy daily fact)
         +materialized: table
         +schema: core
         
+        # Override the core default just for this lightweight dimension
+        dim_listings:
+          +materialized: view
+          
       reporting:
-        +materialized: view
+        # BI-consumed aggregations
+        +materialized: table
         +schema: reporting

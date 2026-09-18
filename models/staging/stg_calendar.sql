@@ -1,6 +1,6 @@
 {{
     config(
-        materialized = "table"
+        materialized = "view"
     )
 }}
 
@@ -19,12 +19,16 @@ WITH
             MINIMUM_NIGHTS AS minimum_nights,
             MAXIMUM_NIGHTS AS maximum_nights
         FROM source_calendar
+        WHERE 1=1 
+        AND listing_id IS NOT NULL
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY listing_id, date ORDER BY price DESC) = 1 
+        --Tie-breaker: selects highest price if duplicate entries exist.
     ),
 
 --#3: Make use of a final cte (per dbt best practices). Makes dqa easier if ever need be.
     final AS (
-    SELECT *
-    FROM cleaned
+        SELECT *
+        FROM cleaned
     )
 
 --#4: Final output.

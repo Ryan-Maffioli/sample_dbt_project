@@ -20,7 +20,7 @@ WITH
             neighborhood,
             property_type,
             room_type,
-            capacity_accomodated,
+            capacity_accommodated,
             bedrooms,
             beds,
             listing_price AS baseline_price,

@@ -2,7 +2,9 @@ version: 2
 
 models:
   - name: dim_listings
-    description: "Core dimensional entity table for rental properties, host metadata, and physical capacity."
+    description: >
+      "Core dimensional entity table for rental properties, host metadata, and physical capacity."
+      "**Grain:** One row per listing_id."
     columns:
       - name: listing_id
         description: "Primary key for listing dimension."
@@ -26,8 +28,12 @@ models:
       - name: property_type
         description: "Structural property categorization."
       - name: room_type
-        description: "Privacy/room classification."
-      - name: capacity_accomodated
+        description: "Privacy classification of accommodation."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
+      - name: capacity_accommodated
         description: "Maximum guest limit."
       - name: bedrooms
         description: "Total bedrooms."

@@ -2,9 +2,35 @@ version: 2
 
 sources:
   - name: source_calendar
-    project: dbt-rmaffioli
-    dataset: source_calendar
-    loader: manual_csv
-
+    description: "Raw daily calendar snapshot source data recording night-by-night availability and pricing."
+    database: dbt-rmaffioli
+    schema: source_calendar
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 48, period: hour}
     tables:
       - name: calendar
+        description: "Daily availability snapshots and actualized reservation records across all listings."
+        columns:
+          - name: listing_id
+            description: "Primary key joining to source_listings table."
+            tests:
+              - not_null
+          - name: date
+            description: "Snapshot date for specific calendar day."
+            tests:
+              - not_null
+          - name: available
+            description: "Raw string indicator ('t' or 'f') designating whether listing is open for booking."
+            tests:
+              - not_null
+          - name: reservation_id
+            description: "Unique booking identifier assigned when calendar date is reserved. NULL if unreserved."
+          - name: price
+            description: "Nightly rate charged for specific calendar date."
+            tests:
+              - not_null
+          - name: minimum_nights
+            description: "Minimum consecutive booking night requirement enforced on date."
+          - name: maximum_nights
+            description: "Maximum consecutive booking night threshold permitted on date."

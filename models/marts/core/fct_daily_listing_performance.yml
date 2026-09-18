@@ -2,13 +2,14 @@ version: 2
 
 models:
   - name: fct_daily_listing_performance
-    description: "Primary daily fact table at date/listing grain containing metrics, availability, and point-in-time amenity boolean flags."
+    description: "Primary daily fact table containing metrics, availability, and point-in-time amenity boolean flags. \n\n**Grain:** One row per `calendar_id` (`listing_id` + `date`).\n\n{{ doc('fct_daily_listing_performance_architecture') }}"
+    # Validates the final reporting grain is intact
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - listing_id
+            - date
     columns:
-      - name: calendar_id
-        description: "Primary key for daily record snapshot."
-        tests:
-          - unique
-          - not_null
       - name: date
         description: "Calendar snapshot date."
         tests:
@@ -25,13 +26,16 @@ models:
       - name: reservation_id
         description: "Identifier for reservation if booked."
       - name: is_available
-        description: "Boolean indicating if property is open for booking on date."
         tests:
           - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
       - name: price
-        description: "Daily price charged for property."
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
       - name: minimum_nights
         description: "Minimum stay constraint enforced on date."
       - name: maximum_nights
@@ -39,14 +43,14 @@ models:
       - name: amenities
         description: "ARRAY<STRING> of active amenities on date."
       - name: has_ac
-        description: "Boolean flag derived from array indicating presence of Air Conditioning."
+        description: '{{ doc("amenity_has_ac") }}'
         tests:
           - not_null
       - name: has_lockbox
-        description: "Boolean flag derived from array indicating presence of Lockbox."
+        description: '{{ doc("amenity_has_lockbox") }}'
         tests:
           - not_null
       - name: has_first_aid_kit
-        description: "Boolean flag derived from array indicating presence of First Aid Kit."
+        description: '{{ doc("amenity_has_first_aid_kit") }}'
         tests:
           - not_null

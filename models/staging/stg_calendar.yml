@@ -4,11 +4,6 @@ models:
   - name: stg_calendar
     description: "Cleaned daily calendar grain table with standardized column names and boolean availability."
     columns:
-      - name: calendar_id
-        description: "Primary key for calendar records, renamed from source column 'Row'."
-        tests:
-          - unique
-          - not_null
       - name: listing_id
         description: "Foreign key referencing stg_listings."
         tests:
@@ -18,15 +13,20 @@ models:
         tests:
           - not_null
       - name: is_available
-        description: "Boolean flag converted from 't'/'f' indicating if property is open for booking."
+        description: "Boolean indicator designating whether listing is open for booking."
         tests:
           - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
       - name: reservation_id
         description: "Foreign key to reservation identifier. NULL if property is unreserved."
       - name: price
-        description: "Nightly rental price in USD for the specific date."
+        description: "Nightly rate charged for specific calendar date."
         tests:
           - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
       - name: minimum_nights
         description: "Minimum consecutive nights required for booking."
       - name: maximum_nights

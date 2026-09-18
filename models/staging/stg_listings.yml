@@ -30,8 +30,12 @@ models:
       - name: property_type
         description: "Classification of property (e.g., Apartment, House)."
       - name: room_type
-        description: "Type of accommodation (e.g., Entire place, Private room)."
-      - name: capacity_accomodated
+        description: "Privacy classification of accommodation."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
+      - name: capacity_accommodated
         description: "Maximum guest capacity."
       - name: bathrooms
         description: "Text description of available bathrooms."

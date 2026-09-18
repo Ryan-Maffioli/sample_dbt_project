@@ -2,7 +2,9 @@ version: 2
 
 models:
   - name: rpt_picky_renter_longest_stay
-    description: "Calculates maximum allowable continuous stay length for listings matching Lockbox + First Aid Kit requirements."
+    description: >
+       "Calculates maximum allowable continuous stay length for listings matching Lockbox + First Aid Kit requirements."
+       "**Grain:** One row per listing_id."
     columns:
       - name: listing_id
         description: "Primary key for listing analysis."

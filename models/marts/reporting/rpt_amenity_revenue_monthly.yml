@@ -2,7 +2,9 @@ version: 2
 
 models:
   - name: rpt_amenity_revenue_monthly
-    description: "Monthly revenue aggregates and percentage segmentation by Air Conditioning status."
+    description: > 
+      "Monthly revenue aggregates and percentage segmentation by Air Conditioning status."
+      "**Grain:** One row per month and has_ac segment."
     columns:
       - name: month
         description: "First day of month for aggregated period."
