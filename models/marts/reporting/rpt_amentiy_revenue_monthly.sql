@@ -1,8 +1,6 @@
--- #1 - Amenity Revenue
--- Write a query to find the total revenue and percentage of revenue by month segmented
--- by whether or not air conditioning exists on the listing.
--- Tip: For example, only 21.2% of revenue in July 2022 came from listings without air
--- conditioning.
+-- #1 - Amenity Revenue:
+-- Write a query to find the total revenue and percentage of revenue by month segmented by whether or not air conditioning exists on the listing.
+-- Tip: For example, only 21.2% of revenue in July 2022 came from listings without air conditioning.
 
 {{
     config(
@@ -28,7 +26,7 @@ WITH
     ),
 
 --#3: Now let's pull our revenue data from stg_calendar (where data is not available indicating a booking).
---#3B: Revenue in this dataset comes from non-available days (available = 'f' / reservation_id IS NOT NULL)
+--#3B: Revenue in this dataset comes from non-available days (available = 'f' / reservation_id IS NOT NULL).
 --#3C: Aggregate monthly revenue by AC status
     monthly_revenue AS (
         SELECT 
@@ -38,29 +36,28 @@ WITH
         FROM stg_calendar AS c
         INNER JOIN listings_with_ac_flag AS l
             ON c.listing_id = l.listing_id
-        WHERE c.is_available = FALSE  -- Only booked days count toward revenue
+        WHERE c.is_available = FALSE  -- Only booked days count toward revenue.
         GROUP BY 1, 2
     ),
 
 --#4: We're then going to calculate our total & running totals.
-pct_totals AS (
-SELECT 
-    month,
-    has_ac,
-    total_revenue,
-    SUM(total_revenue) OVER (PARTITION BY month) AS monthly_total_revenue,
-    ROUND(
-        SAFE_DIVIDE(total_revenue, SUM(total_revenue) OVER (PARTITION BY month)) * 100, 
-        1
-    ) AS pct_of_monthly_revenue
-FROM monthly_revenue
-ORDER BY month ASC, has_ac DESC
-),
+    pct_totals AS (
+    SELECT 
+        month,
+        has_ac,
+        total_revenue,
+        SUM(total_revenue) OVER (PARTITION BY month) AS monthly_total_revenue,
+        ROUND(SAFE_DIVIDE(total_revenue, SUM(total_revenue) OVER (PARTITION BY month)) * 100, 1) AS pct_of_monthly_revenue
+    FROM monthly_revenue
+    ORDER BY month ASC, has_ac DESC
+    ),
 
-final AS (
+--#5: Make use of our final CTE.
+    final AS (
+        SELECT *
+        FROM pct_totals
+    )
+
+--#6: Final output.
     SELECT *
-    FROM pct_totals
-)
-
-SELECT *
-FROM final
+    FROM final

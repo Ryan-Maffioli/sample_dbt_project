@@ -1,7 +1,5 @@
--- Write a query to find the average price increase for each neighborhood from July 12th
--- 2021 to July 11th 2022.
--- Tip: For example, the Back Bay neighborhood only has one listing, so the difference of $44 is
--- the average for the whole neighborhood based solely on listing 10813.
+-- Write a query to find the average price increase for each neighborhood from July 12th 2021 to July 11th 2022.
+-- Tip: For example, the Back Bay neighborhood only has one listing, so the difference of $44 is the average for the whole neighborhood based solely on listing 10813.
 {{
     config(
         materialized = "table"
@@ -37,22 +35,29 @@ WITH
         INNER JOIN stg_listings AS l
             ON c.listing_id = l.listing_id
         GROUP BY 1, 2
-        -- Ensure the listing existed on both dates for a valid comparison
         HAVING price_2021 IS NOT NULL AND price_2022 IS NOT NULL
+        --This HAVING clause ensures that the listing existed on both dates for a valid comparison.
     ),
 
--- Step 3: Aggregate average price increase per neighborhood
-aggregated AS (
-    SELECT 
-        neighborhood,
-        COUNT(listing_id) AS total_listings,
-        ROUND(AVG(price_2021), 2) AS avg_price_2021,
-        ROUND(AVG(price_2022), 2) AS avg_price_2022,
-        ROUND(AVG(price_2022 - price_2021), 2) AS avg_price_increase
-    FROM listing_price_changes
-    GROUP BY 1
-    ORDER BY avg_price_increase DESC
-)
+--#4: Aggregate average price increase per neighborhood.
+    aggregated AS (
+        SELECT 
+            neighborhood,
+            COUNT(listing_id) AS total_listings,
+            ROUND(AVG(price_2021), 2) AS avg_price_2021,
+            ROUND(AVG(price_2022), 2) AS avg_price_2022,
+            ROUND(AVG(price_2022 - price_2021), 2) AS avg_price_increase
+        FROM listing_price_changes
+        GROUP BY 1
+        ORDER BY avg_price_increase DESC
+    ),
 
-SELECT *
-FROM aggregated
+--#5: Make use of our final CTE.
+    final AS (
+        SELECT *
+        FROM aggregated
+    )
+
+--#6: Final output.
+    SELECT *
+    FROM final
