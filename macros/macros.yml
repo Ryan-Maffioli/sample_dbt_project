@@ -1,0 +1,92 @@
+version: 2
+
+macros:
+  - name: parse_money
+    description: >
+      Casts a source money field (raw VARCHAR, e.g. `"$1,234.00"`) to a clean
+      `NUMERIC`. Strips a leading `$` and any thousands-separator commas
+      before casting.
+
+      Uses `safe_cast` rather than `cast` so a value that still doesn't parse
+      after cleanup (unexpected formatting, non-numeric text) returns `null`
+      instead of failing the whole model at build time. That null is then
+      catchable downstream with a `not_null` test, which surfaces a data
+      problem as a test failure rather than a broken build.
+
+      Introduced because `listings.price` and `calendar.price` are typed
+      `VARCHAR` in the source rather than a numeric type, and every
+      downstream revenue calculation needs real arithmetic on this field.
+    arguments:
+      - name: column
+        type: string
+        description: >
+          The column reference to parse (e.g. `PRICE`). Passed unquoted,
+          as SQL — not a string literal.
+
+  - name: parse_tf_boolean
+    description: >
+      Casts a source `'t'`/`'f'`-style flag to a real `BOOL`. Also accepts
+      `'true'`/`'false'` and `'1'`/`'0'` (case-insensitive, whitespace-trimmed)
+      so it isn't brittle to a single specific encoding.
+
+      Anything that doesn't match a known true/false representation returns
+      `null` rather than defaulting to `false` — an unrecognized value is
+      "unknown," not "no." That distinction matters directly in this project:
+      amenity flags downstream (`has_ac`, `has_lockbox`, etc.) are treated as
+      unknown-not-false when null, and revenue/stay-length reports exclude
+      rather than misclassify those rows.
+
+      Introduced because `calendar.available` arrives as a string ('t'/'f')
+      in the source, but every downstream model compares it against a
+      literal `TRUE`/`FALSE`, which requires a real boolean type.
+    arguments:
+      - name: column
+        type: string
+        description: >
+          The column reference to parse (e.g. `AVAILABLE`). Passed unquoted,
+          as SQL — not a string literal.
+
+  - name: parse_amenity_array
+    description: >
+      Parses a source amenity field (a VARCHAR containing a JSON array, e.g.
+      `'["Air conditioning", "Lockbox"]'`) into a clean `ARRAY<STRING>`.
+
+      Handles three cases explicitly rather than assuming well-formed input:
+      a null source value, a value that isn't valid/parseable JSON
+      (`json_extract_string_array` returns null), and a valid array that
+      still contains blank or all-whitespace entries. The first two both
+      resolve to a null array — "amenities unknown" — rather than an empty
+      array, which would incorrectly imply "confirmed no amenities." The
+      third strips and drops blank entries so downstream `has_x` flag checks
+      (e.g. `'Air Conditioning' IN UNNEST(...)`) aren't defeated by stray
+      whitespace or empty strings sitting in the array.
+    arguments:
+      - name: column
+        type: string
+        description: >
+          The column reference to parse (e.g. `AMENITIES` or a changelog
+          snapshot's amenities field). Passed unquoted, as SQL — not a
+          string literal.
+
+  - name: generate_schema_name
+    description: >
+      Overrides dbt's default schema-naming macro. By default, dbt
+      concatenates a custom schema config onto the target schema (e.g.
+      `dev_staging`); this override instead uses the custom schema name
+      exactly as configured in `dbt_project.yml` (`staging`, `intermediate`,
+      `core`, `reporting`) with no prefix, and falls back to the connection's
+      default target schema only when a model has no custom schema set.
+
+      This is what makes the four-layer schema separation
+      (`staging`/`intermediate`/`core`/`reporting`) show up as actual,
+      readable BigQuery dataset names rather than being buried inside a
+      single prefixed dev schema.
+    arguments:
+      - name: custom_schema_name
+        type: string
+        description: >
+          The `schema` value configured for the model (via `+schema` in
+          `dbt_project.yml` or a model's own config), or `none` if unset.
+      - name: node
+        type: node
+        description: The model/node dbt is generating a schema name for.

@@ -1,6 +1,7 @@
 {{
     config(
-        materialized = "table"
+        materialized = "table",
+        cluster_by = ["listing_id", "date"]
     )
 }}
 

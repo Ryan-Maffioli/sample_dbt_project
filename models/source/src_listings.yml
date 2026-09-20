@@ -7,7 +7,9 @@ sources:
     schema: source_listings
     tables:
       - name: listings
-        description: Point-in-time snapshot of listing attributes as of the start of the calendar tracking range. Null listing IDs are excluded in staging.
+        description: >
+          Point-in-time snapshot of listing attributes as of the start of the calendar tracking range. 
+          Null listing IDs are excluded in staging.
         columns:
           - name: ID
             description: Unique primary identifier for the raw listing entity. Known nulls exist in the extract.

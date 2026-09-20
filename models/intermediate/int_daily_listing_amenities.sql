@@ -6,8 +6,8 @@
 
 --#1: Start by bringing in all the upstream materializations we are going to need.
 WITH 
-    stg_calendar AS (SELECT * FROM {{ ref('stg_calendar') }}), 
-    stg_listings AS (SELECT * FROM {{ ref('stg_listings') }}),
+    stg_calendar                    AS (SELECT * FROM {{ ref('stg_calendar') }}), 
+    stg_listings                    AS (SELECT * FROM {{ ref('stg_listings') }}),
     int_amenities_changelog_spanned AS (SELECT * FROM {{ ref('int_amenities_changelog_spanned') }}),
 
 --#2: To start transforming, we are going to create a list of every unique listing_id & date combination.

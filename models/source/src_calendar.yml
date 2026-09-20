@@ -7,7 +7,9 @@ sources:
     schema: source_calendar
     tables:
       - name: calendar
-        description: Daily availability snapshots and actualized reservation records across all listings. Null listing_id rows and duplicate listing-date rows are cleaned in staging.
+        description: >
+          Daily availability snapshots and actualized reservation records across all listings. 
+          Null listing_id rows and duplicate listing-date rows are cleaned in staging.
         columns:
           - name: listing_id
             description: Primary key joining to source_listings table. Nulls are dropped in staging.

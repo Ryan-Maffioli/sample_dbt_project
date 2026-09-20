@@ -40,12 +40,12 @@ WITH
         AND ID IS NOT NULL
     ),
 
-    --#3: Make use of a final CTE per dbt best practices (makes dqa easier if ever need be).
+--#3: Make use of a final CTE per dbt best practices (makes dqa easier if ever need be).
     final AS (
         SELECT *
         FROM cleaned
     )
 
-    --#4: Final output.
+--#4: Final output.
     SELECT *
     FROM final

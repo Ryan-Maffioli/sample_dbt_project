@@ -44,7 +44,7 @@ WITH
     ),
 
 --#5: Aggregate the metrics at the neighborhood grain.
--- avg_pct_price_change is the percent change of the neighborhood averages between the two dates.
+--#5B: avg_pct_price_change is the percent change of the neighborhood averages between the two dates.
     neighborhood_aggregates AS (
         SELECT 
             neighborhood,

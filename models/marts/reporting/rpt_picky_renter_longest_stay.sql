@@ -13,7 +13,7 @@ WITH
     fct_daily_listing_performance AS (SELECT * FROM {{ ref('fct_daily_listing_performance') }}),
     
 --#2: Isolate dates on which the listing satisfies all requirements.
--- has_lockbox / has_first_aid_kit = TRUE also drops unknown (NULL) amenity flags.
+--#2B: has_lockbox / has_first_aid_kit = TRUE also drops unknown (NULL) amenity flags.
     qualified_available_days AS (
         SELECT
             listing_id,
@@ -21,13 +21,14 @@ WITH
             minimum_nights,
             maximum_nights
         FROM fct_daily_listing_performance
-        WHERE is_available = TRUE
+        WHERE 1=1
+        AND is_available = TRUE
         AND has_lockbox = TRUE
         AND has_first_aid_kit = TRUE
     ),
 
 --#3: Gaps and Islands:
--- Consecutive dates will share the same island_group.
+--#3B:Consecutive dates will share the same island_group.
     consecutive_islands AS (
         SELECT
             listing_id,
@@ -44,8 +45,8 @@ WITH
         FROM qualified_available_days
     ),
 
---#4: From each possible start date, remaining_nights is nights left in that island
--- (not the full island length). That is what a stay starting on this date can actually use.
+--#4: From each possible start date, remaining_nights is nights left in that island (not the full island length). 
+--#4B: That is what a stay starting on this date can actually use.
     remaining AS (
         SELECT
             listing_id,
@@ -60,8 +61,7 @@ WITH
         FROM consecutive_islands
     ),
 
---#5: For each potential start date, the longest valid stay is limited
--- by remaining nights and that night's maximum_nights.
+--#5: For each potential start date, the longest valid stay is limited by remaining nights and that night's maximum_nights.
     possible_stays AS (
         SELECT
             listing_id,
@@ -75,7 +75,7 @@ WITH
     ),
 
 --#6: Select the longest valid stay for each listing.
--- A start date only counts if possible_stay_length also meets minimum_nights.
+--#6B: A start date only counts if possible_stay_length also meets minimum_nights.
     max_stays AS (
         SELECT
             listing_id,
@@ -83,8 +83,14 @@ WITH
         FROM possible_stays
         WHERE possible_stay_length >= minimum_nights
         GROUP BY listing_id
+    ),
+
+--#7: Make use of our final CTE.
+    final AS (
+        SELECT *
+        FROM max_stays
     )
 
---#7: Final output.
+--#8: Final output.
     SELECT *
     FROM max_stays
