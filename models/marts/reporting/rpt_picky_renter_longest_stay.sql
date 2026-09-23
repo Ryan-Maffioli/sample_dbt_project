@@ -93,4 +93,4 @@ WITH
 
 --#8: Final output.
     SELECT *
-    FROM max_stays
+    FROM final
