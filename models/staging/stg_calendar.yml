@@ -2,7 +2,9 @@ version: 2
 
 models:
   - name: stg_calendar
-    description: Daily calendar grain with boolean availability, numeric price, null listing IDs removed, and one row per listing_id and date.
+    description: >
+      Daily calendar grain with boolean availability, numeric price, null listing IDs removed, and one row per listing_id and date.
+      {{ doc('stg_calendar_architecture') }}
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

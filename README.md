@@ -98,6 +98,19 @@ dataset's 2021 history. Full reasoning and the production-tier path
 (`partition_by` + `insert_overwrite` incremental) are documented in the
 model's docs block (`fct_daily_listing_performance_architecture`).
 
+**Materialization: `stg_calendar`.** Clustered on `(listing_id, date)` - the
+opposite column order from `fct_daily_listing_performance`'s
+`(date, listing_id)`. Each table is clustered for its own primary access
+pattern rather than copied from the other: `stg_calendar` is consumed
+almost entirely through equi-joins on `(listing_id, date)` by
+`int_daily_listing_amenities` and `fct_daily_listing_performance`, while
+`fct_daily_listing_performance` is consumed by reporting queries that
+filter/aggregate by date range first. No `partition_by` here either, for
+the same Sandbox-tier reason as `fct` - this table covers the same
+2021-2022 date range. In practice, clustering has no measurable effect at
+this dataset's size; it's included to match the production-scale access
+pattern rather than for an observed performance gain here.
+
 ## Testing strategy
 
 - Grain is enforced with `dbt_utils.unique_combination_of_columns` on

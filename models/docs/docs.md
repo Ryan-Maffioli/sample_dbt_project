@@ -10,6 +10,25 @@ Boolean flag indicating whether 'Lockbox' was present in the listing's active am
 Boolean flag indicating whether 'First aid kit' was present in the listing's active amenities array on this date. Null when the amenity array is unknown.
 {% enddocs %}
 
+{% docs stg_calendar_architecture %}
+### Materialization Strategy
+
+* **Table, not view:** unlike other staging models, `stg_calendar`
+  deduplicates listing/date rows via `QUALIFY ROW_NUMBER()`. That logic
+  shouldn't be recomputed by every downstream query, so it's materialized
+  as a table.
+* **Clustered on `(listing_id, date)`:** matches the equi-join pattern used
+  by every downstream consumer (`int_daily_listing_amenities`,
+  `fct_daily_listing_performance`), rather than mirroring
+  `fct_daily_listing_performance`'s `(date, listing_id)` clustering, which
+  is instead optimized for that model's own date-range-filtered reporting
+  queries.
+* **No `partition_by`:** same BigQuery Sandbox 60-day partition expiration
+  constraint documented in `fct_daily_listing_performance_architecture` -
+  this table spans the same 2021-2022 date range and would lose historical
+  partitions on creation.
+{% enddocs %}
+
 {% docs fct_daily_listing_performance_architecture %}
 ### Materialization Strategy & Sandbox Constraints
 

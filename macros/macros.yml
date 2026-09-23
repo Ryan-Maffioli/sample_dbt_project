@@ -88,5 +88,6 @@ macros:
           The `schema` value configured for the model (via `+schema` in
           `dbt_project.yml` or a model's own config), or `none` if unset.
       - name: node
-        type: node
-        description: The model/node dbt is generating a schema name for.
+        description: >
+          The model/node dbt is generating a schema name for.
+          Passed unquoted, as SQL, not a string literal.
